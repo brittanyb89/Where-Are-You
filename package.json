@@ -1,23 +1,33 @@
 {
-  "private": true,
-  "main": "app/index.js",
-  "type": "module",
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "*A command-line application to manage a company's employee database, using Node.js, Inquirer, and MySQL*",
+  "main": "index.js",
   "scripts": {
-    "test": "vitest"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "sqlite3 db/all_employees.db < db/schema.sql",
+    "seed": "sqlite3 db/all_employees.db < db/seeds.sql",
+    "db": "sqlite3 db/all_employees.db",
+    "start": "node server.js"
   },
-  "devDependencies": {
-    "@babel/eslint-parser": "^7.19.1",
-    "@babel/plugin-syntax-import-assertions": "^7.20.0",
-    "eslint": "^8.27.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-config-xo": "^0.43.1",
-    "prettier": "^2.7.1",
-    "vitest": "^0.25.3"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priyaravi23/employee-tracker.git"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/priyaravi23/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/priyaravi23/employee-tracker#readme",
   "dependencies": {
+    "chalk": "^4.1.0",
     "console.table": "^0.10.0",
-    "inquirer": "^8.2.4",
-    "mysql": "^2.18.1",
-    "mysql2": "^3.0.1"
+    "dotenv": "^8.2.0",
+    "figlet": "^1.5.0",
+    "inquirer": "^7.3.3",
+    "mysql2": "^2.1.0",
+    "promise-mysql": "^4.1.3"
   }
 }
