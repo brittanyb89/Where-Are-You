@@ -1,8 +1,8 @@
 {
-  "name": "employee-tracker",
+  "name": "where-are-you",
   "version": "1.0.0",
-  "description": "*A command-line application to manage a company's employee database, using Node.js, Inquirer, and MySQL*",
-  "main": "index.js",
+  "description": "A command-line application that allows the user to view and manage the departments, roles, and employees in their company so that they can organize and plan their business.",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate": "sqlite3 db/all_employees.db < db/schema.sql",
@@ -22,10 +22,8 @@
   },
   "homepage": "https://github.com/priyaravi23/employee-tracker#readme",
   "dependencies": {
-    "chalk": "^4.1.0",
     "console.table": "^0.10.0",
     "dotenv": "^8.2.0",
-    "figlet": "^1.5.0",
     "inquirer": "^7.3.3",
     "mysql2": "^2.1.0",
     "promise-mysql": "^4.1.3"
