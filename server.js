@@ -1,133 +1,281 @@
-const express = require('express');
 // Import and require mysql2
-const mysql = require('mysql2');
+const mysql = require("mysql2");
+const inquirer = require("inquirer");
+const cTable = require("console.table");
+const promisemysql = require("promise-mysql");
+const { connectionProperties, connection } = require("./config/connection");
 
 const PORT = process.env.PORT || 3001;
-const app = express();
 
-// Express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+// Establish connection to database
+connection.connect((err) => {
+  if (err) {
+    return console.error("error: " + err.message);
+  }
+  console.log("Connected to the MySQL server.");
+});
 
-// Connect to database
-const db = mysql.createConnection(
-  {
-    host: 'localhost',
-    // MySQL username,
-    user: 'root',
-    password: 'pAssioNate1!',
-    database: 'employer_db'
-  },
-  console.log(`Connected to the employer_db database.`)
-);
+// Main menu
+function mainMenu() {
+  inquirer
+    .prompt({
+      type: "list",
+      name: "menu",
+      message: "What would you like to do?",
+      choices: [
+        "View all departments",
+        "View all roles",
+        "View all employees",
+        "Add a department",
+        "Add a role",
+        "Add an employee",
+        "Update an employee role",
+        "Exit",
+      ],
+    })
 
-// Create a department
-app.post('/api/department', ({ body }, res) => {
-  const sql = `INSERT INTO department (name) VALUES (?)`;
-  const params = [body.dept_name];
+    .then((answer) => {
+      switch (answer.menu) {
+        case "View all departments":
+          viewDepartments();
+          break;
+        case "View all roles":
+          viewRoles();
+          break;
+        case "View all employees":
+          viewEmployees();
+          break;
+        case "Add a department":
+          addDepartment();
+          break;
+        case "Add a role":
+          addRole();
+          break;
+        case "Add an employee":
+          addEmployee();
+          break;
+        case "Update an employee role":
+          updateEmployeeRole();
+          break;
+        case "Exit":
+          connection.end();
+          break;
+      }
+    }),
+}
 
-  db.query(sql, params, (err, result) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
-    }
+// Function to view all departments
+function viewDepartments() {
+  let query = "SELECT * FROM departments";
+  connection.query("SELECT * FROM departments", (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    mainMenu();
+  });
+};
 
-    res.json({
-      message: 'success',
-      data: body
+// Function to view all roles
+function viewRoles() {
+  let query = "SELECT * FROM roles";
+  connection.query("SELECT * FROM roles", (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    mainMenu();
+  });
+};
+
+// Function to view all employees
+function viewEmployees() {
+  let query = "SELECT * FROM employees";
+  connection.query("SELECT * FROM employees", (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    mainMenu();
+  });
+};
+
+// Function to add a department
+function addDepartment() {
+  inquirer
+    .prompt([
+      {
+      type: "input",
+      name: "department_id",
+      message: "What is the new department ID?",
+      },
+      {
+      type: "input",
+      name: "department_name",
+      message: "What is the new department name?",
+      },
+    ])
+
+    .then((answer) => {
+      connection.query("INSERT INTO departments SET ?",{
+          dept_id: answer.department_id,
+          dept_name: answer.department_name,
+        },
+        (err) => {
+          if (err) throw err;
+          console.log("Your department was created successfully!");
+          mainMenu();
+        }
+      );
+    });
+};
+
+// Function to add a role
+function addRole() {
+  inquirer
+    .prompt([
+      {
+      type: "input",
+      name: "role_id",
+      message: "What is the new role ID?",
+      },
+      {
+      type: "input",
+      name: "role_title",
+      message: "What is the new role title?",
+      },
+      {
+      type: "input",
+      name: "role_salary",
+      message: "What is the new role salary?",
+      },
+      {
+      type: "input",
+      name: "role_department",
+      message: "What is the department ID of new role?",
+      },
+    ])
+
+    .then((answer) => {
+      connection.query("INSERT INTO roles SET ?",{
+          role_id: answer.role_id,
+          title: answer.role_title,
+          salary: answer.role_salary,
+          department_id: answer.role_department,
+        },
+        (err) => {
+          if (err) throw err;
+          console.log("Your role was created successfully!");
+          mainMenu();
+        }
+      );
+    });
+}
+
+// Function to add an employee
+function addEmployee() {
+  inquirer
+    .prompt([
+      {
+      type: "input",
+      name: "employee_id",
+      message: "What is the new employee ID?",
+      },
+      {
+      type: "input",
+      name: "employee_first_name",
+      message: "What is the new employee's first name?",
+      },
+      {
+      type: "input",
+      name: "employee_last_name",
+      message: "What is the new employee's last name?",
+      },
+      {
+      type: "input",
+      name: "employee_role",
+      message: "What is the new employee's role ID?",
+      },
+      {
+      type: "input",
+      name: "employee_manager",
+      message: "What is the new employee's manager ID?",
+      },
+    ])
+
+    .then((answer) => {
+      connection.query("INSERT INTO employees SET ?",{
+          id: answer.employee_id,
+          first_name: answer.employee_first_name,
+          last_name: answer.employee_last_name,
+          role_id: answer.employee_role,
+          manager_id: answer.employee_manager,
+        },
+        (err) => {
+          if (err) throw err;
+          console.log("Your employee was created successfully!");
+          mainMenu();
+        }
+      );
+    });
+};
+
+// Function to update an employee role
+function updateEmployeeRole() {
+  // Array for employee and role
+  let employeeList = [];
+  let roleList = [];
+
+  // Create connection using promise-mysql
+  promisemysql.createConnection(connectionProperties).then((conn) => {
+    return Promise.all([
+      // Query to get all employees
+      conn.query('SELECT id, title FROM roles ORDER BY title ASC'),
+      conn.query('SELECT employee_id, concat(first_name, " ", last_name) AS Employees FROM employees ORDER BY Employees ASC')
+    ]);
+  }).then(([roles, employees]) => {
+    // Push roles into roleList array
+    roles.forEach((role) => {
+      roleList.push(role.title);
+    });
+  // Push employees into employeeList array
+    employees.forEach((employee) => {
+      employeeList.push(employee.Employees);
+    });
+    return Promise.all([roles, employees]);
+  // Prompt user to select employee and role
+  }).then(([roles, employees]) => {
+    inquirer.prompt([
+      {
+        type: 'list',
+        name: 'employee',
+        message: 'Which employee would you like to update?',
+        choices: employeeList
+      }, {
+        type: 'list',
+        name: 'role',
+        message: 'What is the new role?',
+        choices: roleList
+      },
+    ]).then((answer) => {
+      // Get the role ID and employee ID
+      let roleID;
+      let employeeID;
+
+      roles.forEach((role) => {
+        if (role.title === answer.role) {
+          roleID = role.id;
+        }
+      });
+
+      employees.forEach((employee) => {
+        if (employee.Employees === answer.employee) {
+          employeeID = employee.employee_id;
+        }
+      });
+
+      // Update the employee role
+      connection.query(`UPDATE employees SET role_id = ${roleID} WHERE employee_id = ${employeeID}`, (err, res) => {
+        if (err) throw err;
+
+        //confirm update
+        console.log(`${answer.employee}'s role has been updated to ${answer.role}.`);
+        mainMenu();
+      });
     });
   });
-});
-
-// Read all departments
-app.get('/api/department', (req, res) => {
-  const sql = `SELECT * FROM department`;
-
-  db.query(sql, (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-
-    res.json({
-      message: 'success',
-      data: rows
-    });
-  });
-});
-
-// Read a single department
-app.get('/api/department/:id', (req, res) => {
-  const sql = `SELECT * FROM department WHERE id = ?`;
-  const params = [req.params.id];
-
-  db.query(sql
-    params, (err, row) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
-    }
-
-    res.json({
-      message: 'success',
-      data: row
-    });
-  });
-});
-
-// Update a department
-app.put('/api/department/:id', (req, res) => {
-  const sql = `UPDATE department SET name = ? WHERE id = ?`;
-  const params = [req.body.dept_name, req.params.id];
-
-  db.query(sql, params
-    (err, result) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      // check if a record was found
-    } else if (!result.affectedRows) {
-      res.json({
-        message: 'Department not found'
-      });
-    } else {
-      res.json({
-        message: 'success',
-        data: req.body,
-        changes: result.affectedRows
-      });
-    }
-  });
-});
-
-// Delete a department
-app.delete('/api/department/:id', (req, res) => {
-  const sql = `DELETE FROM department WHERE id = ?`;
-  const params = [req.params.id];
-
-  db.query(sql
-    params, (err, result) => {
-    if (err) {
-      res.status(400).json({ error: res.message });
-      // check if anything was deleted
-    } else if (!result.affectedRows) {
-      res.json({
-        message: 'Department not found'
-      });
-    } else {
-      res.json({
-        message: 'deleted',
-        changes: result.affectedRows,
-        id: req.params.id
-      });
-    }
-  });
-});
-
-// Default response for any other request (Not Found)
-app.use((req, res) => {
-  res.status(404).end();
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+};
