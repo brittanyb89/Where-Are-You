@@ -1,9 +1,11 @@
 // Import and require mysql2
-// const mysql = require("mysql2");
+const mysql = require("mysql2");
 const inquirer = require("inquirer");
-// const cTable = require("console.table");
+const cTable = require("console.table");
 const promisemysql = require("promise-mysql");
 const { connectionProps, connection } = require("./config/connection");
+
+const PORT = process.env.PORT || 3001;
 
 // Establish connection to database
 connection.connect((err) => {
