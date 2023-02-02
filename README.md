@@ -6,13 +6,6 @@
 
 This project allows the user to create a team of employees through the command line. The user is prompted to enter the name, id, email, and role of the employee. Depending on the role, the user will be prompted to enter additional information. The user can add as many employees as they would like.
 
-Use of this starter template assumes that you have a 'complete dev environment' setup - a terminal, Node, VS Code, at least. If not, you may want to [start here.](https://www.notion.so/codefinity/Setting-up-a-Local-Dev-Environment-for-JS-02a4e9f4a30043d3a8e7d109be3448f4)
-
-1. Click that big green button to start using it.
-2. `clone` your new repo from your GitHub to your local computer
-3. `cd` into the `clone`d repo and enter: `npm i`.
-4. `npm start`
-
 # User Story
 
 AS A business owner
@@ -41,9 +34,48 @@ THEN I am prompted to select an employee to update and their new role and this i
 
 ## Installation/Usage
 
-- [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
-- Various VS Code 'settings' and 'extensions.' Look in the bottom right when you open this up in VS Code to install them.
-- [Vitest](https://vitest.dev/) for testing. Just do `npm test` or `npm t`.
+To install, run the following command:
+
+```bash
+npm i
+```
+
+npm i inquirer@8.2.4
+
+```
+npm i mysql2
+```
+
+npm i console.table
+
+````
+To create the database, run the following command:
+
+```bash
+mysql -u root -p
+````
+
+(login with your password)
+
+```
+SOURCE db/schema.sql;
+```
+
+SOURCE db/insert.sql; // to insert data
+
+```
+SELECT database(); // to check if the database is created
+```
+
+SOURCE db/delete.sql; // to delete the database
+
+```
+SHOW DATABASES; // to show all the databases
+```
+
+SELECT \* // to show all the tables
+
+```
 
 ## Mock-Up
 
@@ -64,3 +96,4 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
