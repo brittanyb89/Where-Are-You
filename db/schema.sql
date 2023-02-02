@@ -1,8 +1,8 @@
-DROP DATABASE IF EXISTS 'e-commerce_db';
+DROP DATABASE IF EXISTS 'employee_db';
 
-CREATE DATABASE 'e-commerce_db';
+CREATE DATABASE 'employee_db';
 
-USE 'e-commerce_db';
+USE 'employee_db';
 
 CREATE TABLE department (
   id INT NOT NULL AUTO_INCREMENT,
