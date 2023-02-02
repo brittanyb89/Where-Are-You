@@ -14,6 +14,8 @@ connection.connect((err) => {
   }
 
   console.log("Connected to the MySQL server.");
+  // Call mainMenu function
+  mainMenu();
 });
 
 // Main menu
@@ -21,7 +23,7 @@ function mainMenu() {
   inquirer
     .prompt({
       type: "list",
-      name: "menu",
+      name: "userMenu",
       message: "What would you like to do?",
       choices: [
         "View all departments",
@@ -34,8 +36,9 @@ function mainMenu() {
         "Exit",
       ],
     })
-    .then((answer) => {
-      switch (answer.menu) {
+    // Switch statement to call functions based on user input
+    .then((response) => {
+      switch (response.userMenu) {
         case "View all departments":
           viewDepartments();
           break;
@@ -67,8 +70,6 @@ function mainMenu() {
         case "Exit":
           connection.end();
           break;
-
-        default:
       }
     });
 }
@@ -95,8 +96,8 @@ function viewRoles() {
 
 // Function to view all employees
 function viewEmployees() {
-  const emplyQuery = "SELECT * FROM employees";
-  connection.query("SELECT * FROM employees", (err, res) => {
+  const emplyQuery = "SELECT * FROM employee";
+  connection.query("SELECT * FROM employee", (err, res) => {
     if (err) throw err;
     console.table(res);
     mainMenu();
@@ -109,12 +110,12 @@ function addDepartment() {
     .prompt([
       {
         type: "input",
-        name: "department_id",
+        name: "id",
         message: "What is the new department ID?",
       },
       {
         type: "input",
-        name: "department_name",
+        name: "name",
         message: "What is the new department name?",
       },
     ])
@@ -123,12 +124,12 @@ function addDepartment() {
       connection.query(
         "INSERT INTO departments SET ?",
         {
-          dept_id: answer.department_id,
-          dept_name: answer.department_name,
+          id: answer.id,
+          name: answer.name,
         },
         (err) => {
           if (err) throw err;
-          console.log("Your department was created successfully!");
+          console.log("YOUR DEPARTMENT WAS SUCCESSFULLY ADDED!");
           mainMenu();
         }
       );
@@ -141,22 +142,22 @@ function addRole() {
     .prompt([
       {
         type: "input",
-        name: "role_id",
+        name: "id",
         message: "What is the new role ID?",
       },
       {
         type: "input",
-        name: "role_title",
-        message: "What is the new role title?",
+        name: "title",
+        message: "What is the new title?",
       },
       {
         type: "input",
-        name: "role_salary",
+        name: "salary",
         message: "What is the new role salary?",
       },
       {
         type: "input",
-        name: "role_department",
+        name: "department_id",
         message: "What is the department ID of new role?",
       },
     ])
@@ -165,14 +166,14 @@ function addRole() {
       connection.query(
         "INSERT INTO roles SET ?",
         {
-          role_id: answer.role_id,
-          title: answer.role_title,
-          salary: answer.role_salary,
-          department_id: answer.role_department,
+          id: answer.id,
+          title: answer.title,
+          salary: answer.salary,
+          department_id: answer.department_id,
         },
         (err) => {
           if (err) throw err;
-          console.log("Your role was created successfully!");
+          console.log("YOUR ROLE WAS CREATED SUCCESSFULLY!");
           mainMenu();
         }
       );
@@ -185,49 +186,51 @@ function addEmployee() {
     .prompt([
       {
         type: "input",
-        name: "employee_id",
+        name: "id",
         message: "What is the new employee ID?",
       },
       {
         type: "input",
-        name: "employee_first_name",
+        name: "first_name",
         message: "What is the new employee's first name?",
       },
       {
         type: "input",
-        name: "employee_last_name",
+        name: "last_name",
         message: "What is the new employee's last name?",
       },
       {
         type: "input",
-        name: "employee_role",
+        name: "role_id",
         message: "What is the new employee's role ID?",
       },
       {
         type: "input",
-        name: "employee_manager",
+        name: "manager_id",
         message: "What is the new employee's manager ID?",
       },
     ])
 
     .then((answer) => {
       connection.query(
-        "INSERT INTO employees SET ?",
+        "INSERT INTO employee SET ?",
         {
-          id: answer.employee_id,
-          first_name: answer.employee_first_name,
-          last_name: answer.employee_last_name,
-          role_id: answer.employee_role,
-          manager_id: answer.employee_manager,
+          id: answer.id,
+          first_name: answer.first_name,
+          last_name: answer.last_name,
+          role_id: answer.role_id,
+          manager_id: answer.manager_id,
         },
         (err) => {
           if (err) throw err;
-          console.log("Your employee was created successfully!");
+          console.log("YOU DID IT! YOUR EMPLOYEE WAS ADDED!");
           mainMenu();
         }
       );
     });
 }
+
+// FIX ERROR IN TERMINAL WHEN RUNNING THIS FUNCTION
 
 // Function to update an employee role
 function updateEmployeeRole() {
@@ -243,23 +246,23 @@ function updateEmployeeRole() {
         // Query to get all employees
         conn.query("SELECT id, title FROM roles ORDER BY title ASC"),
         conn.query(
-          'SELECT employee_id, concat(first_name, " ", last_name) AS Employees FROM employees ORDER BY Employees ASC'
+          'SELECT employee, concat(first_name, " ", last_name) AS Employee FROM employee ORDER BY Employee ASC'
         ),
       ])
     )
-    .then(([roles, employees]) => {
+    .then(([roles, employee]) => {
       // Push roles into roleList array
       roles.forEach((role) => {
         roleList.push(role.title);
       });
       // Push employees into employeeList array
-      employees.forEach((employee) => {
-        employeeList.push(employee.Employees);
+      employee.forEach((employee) => {
+        employeeList.push(employee.Employee);
       });
-      return Promise.all([roles, employees]);
+      return Promise.all([roles, employee]);
       // Prompt user to select employee and role
     })
-    .then(([roles, employees]) => {
+    .then(([roles, employee]) => {
       inquirer
         .prompt([
           {
@@ -286,15 +289,15 @@ function updateEmployeeRole() {
             }
           });
 
-          employees.forEach((employee) => {
-            if (employee.Employees === answer.employee) {
-              employeeID = employee.employee_id;
+          employee.forEach((employee) => {
+            if (employee.Employee === answer.employee) {
+              employeeID = id;
             }
           });
 
           // Update the employee role
           connection.query(
-            `UPDATE employees SET role_id = ${roleID} WHERE employee_id = ${employeeID}`,
+            `UPDATE employee SET role_id = ${roleID} WHERE id = ${employeeID}`,
             (err, res) => {
               if (err) throw err;
 

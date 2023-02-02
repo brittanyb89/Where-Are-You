@@ -1,32 +1,34 @@
-DROP DATABASE IF EXISTS 'employee_db';
+-- Drops the employee_db database if it exists
+DROP TABLE IF EXISTS employee_db;
 
-CREATE DATABASE 'employee_db';
+-- Creates the employee_db database
+CREATE DATABASE employee_db;
 
-USE 'employee_db';
+-- Use the employee_db database
+USE employee_db;
 
-CREATE TABLE department (
-  id INT NOT NULL AUTO_INCREMENT,
+-- Creates the departments table
+CREATE TABLE departments (
+  id INT NOT NULL,
   name VARCHAR(30) NOT NULL,
   PRIMARY KEY (id)
 );
 
-CREATE TABLE role (
-  id INT NOT NULL AUTO_INCREMENT,
+-- Creates the roles table
+CREATE TABLE roles (
+  id INT NOT NULL,
   title VARCHAR(30) NOT NULL,
   salary DECIMAL(10,2) NOT NULL,
-  department_id INT NOT NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (department_id) REFERENCES department(id)
+  department_id INT UNSIGNED NOT NULL REFERENCES departments(id),
+  PRIMARY KEY (id)
 );
 
+-- Creates the employee table
 CREATE TABLE employee (
-  id INT NOT NULL AUTO_INCREMENT,
+  id INT NOT NULL,
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
-  role_id INT NOT NULL,
-  -- manager id is to hold reference to another employee that is the manager of the current employee (null if the employee has no manager)
-  manager_id INT,
-  PRIMARY KEY (id),
-  FOREIGN KEY (role_id) REFERENCES role(id),
-  FOREIGN KEY (manager_id) REFERENCES employee(id)
+  role_id INT UNSIGNED NOT NULL REFERENCES roles(id),
+  manager_id INT UNSIGNED NOT NULL REFERENCES manager(id),
+  PRIMARY KEY (id)
 );

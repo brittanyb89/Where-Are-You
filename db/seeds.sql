@@ -1,22 +1,23 @@
-INSERT INTO 'department' ('name')
+INSERT INTO departments (id, name)
 VALUES
-('Accounting'),
-('Marketing'),
-('Sales'),
-('IT'),
-('HR');
+(100, 'Accounting'),
+(200, 'Marketing'),
+(300, 'Sales'),
+(400, 'IT'),
+(500, 'HR');
 
-INSERT INTO 'role' ('title', 'salary', 'department_id')
+INSERT INTO roles (id, title, salary, department_id)
 VALUES
-('Accountant', 10000, 1),
-('Marketing Manager', 15000, 2),
-('Sales Manager', 20000, 3),
-('IT Manager', 25000, 4),
-('HR Manager', 30000, 5);
+(123, 'Accountant', 10000, 100),
+(345, 'Marketing Manager', 15000, 200),
+(567, 'Sales Manager', 20000, 300),
+(789, 'IT Manager', 25000, 400),
+(901, 'HR Manager', 30000, 500);
 
-INSERT INTO 'employee' ('name', 'department_id', 'salary')
+INSERT INTO employee (id, first_name, last_name, role_id, manager_id)
 VALUES
-('John', 1, 10000),
-('Mary', 2, 15000),
-('Steve', 3, 20000),
-('Bill', 4, 25000);
+(098, 'John', 'Smith', 123, 900),
+(765, 'Mary', 'Johnson', 345, 903),
+(432, 'Steve', 'Williams', 567, 989),
+(109, 'Bill', 'Jones', 789, 502),
+(876, 'Sarah', 'Brown', 012, 132);
