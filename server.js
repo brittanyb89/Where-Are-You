@@ -1,9 +1,8 @@
-// Import and require mysql2
+const { connectionProps, connection } = require("./config/connection");
 const mysql = require("mysql2");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 const promisemysql = require("promise-mysql");
-const { connectionProps, connection } = require("./config/connection");
 
 const PORT = process.env.PORT || 3001;
 
@@ -33,6 +32,7 @@ function mainMenu() {
         "Add a role",
         "Add an employee",
         "Update an employee role",
+        "Update an employee manager",
         "Exit",
       ],
     })
@@ -65,6 +65,10 @@ function mainMenu() {
 
         case "Update an employee role":
           updateEmployeeRole();
+          break;
+
+        case "Update an employee manager":
+          updateManager();
           break;
 
         case "Exit":
@@ -230,84 +234,192 @@ function addEmployee() {
     });
 }
 
-// FIX ERROR IN TERMINAL WHEN RUNNING THIS FUNCTION
-
 // Function to update an employee role
 function updateEmployeeRole() {
-  // Array for employee and role
-  const employeeList = [];
-  const roleList = [];
+  // Create employee and role arrays
+  let employeeArray = [];
+  let roleArray = [];
 
-  // Create connection using promise-mysql
+  // Create connection using promise-sql
   promisemysql
     .createConnection(connectionProps)
-    .then((conn) =>
-      Promise.all([
+    .then((connection) => {
+      return Promise.all([
         // Query to get all employees
-        conn.query("SELECT id, title FROM roles ORDER BY title ASC"),
-        conn.query(
-          'SELECT employee, concat(first_name, " ", last_name) AS Employee FROM employee ORDER BY Employee ASC'
+        connection.query("SELECT id, title FROM roles ORDER BY title ASC"),
+        connection.query(
+          "SELECT employee.id, concat(employee.first_name, ' ', employee.last_name) AS Employee FROM employee ORDER BY Employee ASC"
         ),
-      ])
-    )
-    .then(([roles, employee]) => {
-      // Push roles into roleList array
-      roles.forEach((role) => {
-        roleList.push(role.title);
-      });
-      // Push employees into employeeList array
-      employee.forEach((employee) => {
-        employeeList.push(employee.Employee);
-      });
-      return Promise.all([roles, employee]);
-      // Prompt user to select employee and role
+      ]);
     })
-    .then(([roles, employee]) => {
+    .then(([roles, employees]) => {
+      // Place roles into array
+      for (i = 0; i < roles.length; i++) {
+        roleArray.push(roles[i].title);
+      }
+
+      // Place employee into array
+      for (i = 0; i < employees.length; i++) {
+        employeeArray.push(employees[i].Employee);
+      }
+
+      return Promise.all([roles, employees]);
+    })
+    .then(([roles, employees]) => {
+      // Prompt user to select employee and role
       inquirer
         .prompt([
           {
             type: "list",
             name: "employee",
             message: "Which employee would you like to update?",
-            choices: employeeList,
+            choices: employeeArray,
           },
           {
             type: "list",
             name: "role",
-            message: "What is the new role?",
-            choices: roleList,
+            message: "What is the employee's new role?",
+            choices: roleArray,
           },
         ])
         .then((answer) => {
-          // Get the role ID and employee ID
           let roleID;
           let employeeID;
 
-          roles.forEach((role) => {
-            if (role.title === answer.role) {
-              roleID = role.id;
+          // Get role ID
+          for (i = 0; i < roles.length; i++) {
+            if (answer.role === roles[i].title) {
+              roleID = roles[i].id;
             }
-          });
+          }
 
-          employee.forEach((employee) => {
-            if (employee.Employee === answer.employee) {
-              employeeID = id;
+          // Get employee ID
+          for (i = 0; i < employees.length; i++) {
+            if (answer.employee === employees[i].Employee) {
+              employeeID = employees[i].id;
             }
-          });
+          }
 
-          // Update the employee role
+          // update employee with new role
           connection.query(
             `UPDATE employee SET role_id = ${roleID} WHERE id = ${employeeID}`,
             (err, res) => {
               if (err) throw err;
-
-              // confirm update
               console.log(
-                `${answer.employee}'s role has been updated to ${answer.role}.`
+                `\n ${answer.employee}'s role was updated to ${answer.role}!.....\n`
               );
               mainMenu();
             }
           );
         });
     });
+}
+
+// Function to update an employee manager
+function updateManager() {
+  // Create global array for employee
+  let employeeArray = [];
+
+  // Query to get all employees
+  connection.query(
+    "SELECT employee.id, concat(employee.first_name, ' ', employee.last_name) AS Employee FROM employee ORDER BY Employee ASC",
+    (err, employees) => {
+      // Place employee into array
+      for (i = 0; i < employees.length; i++) {
+        employeeArray.push(employees[i].Employee);
+      }
+
+      // Prompt user to select employee and manager
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "employee",
+            message: "Which employee would you like to update?",
+            choices: employeeArray,
+          },
+          {
+            type: "list",
+            name: "manager",
+            message: "Who is the employee's new manager?",
+            choices: employeeArray,
+          },
+        ])
+        .then((answer) => {
+          let employeeID;
+          let managerID;
+
+          // Get manager ID
+          for (i = 0; i < employees.length; i++) {
+            if (answer.manager === employees[i].Employee) {
+              managerID = employees[i].id;
+            }
+          }
+
+          // Get employee ID
+          for (i = 0; i < employees.length; i++) {
+            if (answer.employee === employees[i].Employee) {
+              employeeID = employees[i].id;
+            }
+          }
+
+          // update employee with new manager ID
+          connection.query(
+            `UPDATE employee SET manager_id = ${managerID} WHERE id = ${employeeID}`,
+            (err, res) => {
+              if (err) throw err;
+              console.log(
+                `\n ${answer.employee}'s manager was updated to ${answer.manager}!.....\n`
+              );
+              mainMenu();
+            }
+          );
+        });
+    }
+  );
+}
+
+// Function to delete a department
+function deleteDepartment() {
+  // Create global array for department
+  let departmentArray = [];
+
+  // Query to get all departments
+  connection.query("SELECT * FROM department", (err, departments) => {
+    // Place departments into array
+    for (i = 0; i < departments.length; i++) {
+      departmentArray.push(departments[i].name);
+    }
+
+    // Prompt user to select department
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          name: "department",
+          message: "Which department would you like to delete?",
+          choices: departmentArray,
+        },
+      ])
+      .then((answer) => {
+        let departmentID;
+
+        // Get department ID
+        for (i = 0; i < departments.length; i++) {
+          if (answer.department === departments[i].name) {
+            departmentID = departments[i].id;
+          }
+        }
+
+        // Delete department
+        connection.query(
+          `DELETE FROM department WHERE id = ${departmentID}`,
+          (err, res) => {
+            if (err) throw err;
+            console.log(`\n ${answer.department} was deleted!.....\n`);
+            mainMenu();
+          }
+        );
+      });
+  });
 }
