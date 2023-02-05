@@ -6,6 +6,9 @@
 
 This project allows the user to create a team of employees through the command line. The user is prompted to enter the name, id, email, and role of the employee. Depending on the role, the user will be prompted to enter additional information. The user can add as many employees as they would like.
 
+GitHub Repository: https://github.com/brittanyb89/Where-Are-You
+Watch demo here: https://watch.screencastify.com/v/b1yYOZb0pXzAUsksWm7j
+
 # User Story
 
 AS A business owner
