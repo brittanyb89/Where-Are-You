@@ -33,6 +33,9 @@ function mainMenu() {
         "Add an employee",
         "Update an employee role",
         "Update an employee manager",
+        "Delete an employee",
+        "Delete a role",
+        "Delete a department",
         "Exit",
       ],
     })
@@ -71,8 +74,21 @@ function mainMenu() {
           updateManager();
           break;
 
+        case "Delete an employee":
+          deleteEmployee();
+          break;
+
+        case "Delete a role":
+          deleteRole();
+          break;
+
+        case "Delete a department":
+          deleteDepartment();
+          break;
+
         case "Exit":
           connection.end();
+          console.log("Thank you for using Employee Tracker!");
           break;
       }
     });
@@ -379,13 +395,128 @@ function updateManager() {
   );
 }
 
+// Function to delete an employee
+function deleteEmployee() {
+  // Create global array for employee
+  let employeeArray = [];
+
+  // Query to get all employees
+  connection.query(
+    "SELECT employee.id, concat(employee.first_name, ' ', employee.last_name) AS Employee FROM employee ORDER BY Employee ASC",
+    (err, employees) => {
+      // Place employee into array
+      for (i = 0; i < employees.length; i++) {
+        employeeArray.push(employees[i].Employee);
+      }
+
+      // Prompt user to select employee
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "employee",
+            message: "Which employee would you like to delete?",
+            choices: employeeArray,
+          },
+          {
+            type: "list",
+            name: "yesNo",
+            message: "Are you sure you want to delete this employee?",
+            choices: ["Yes", "No"],
+          },
+        ])
+        .then((answer) => {
+          if (answer.yesNo === "Yes") {
+            let employeeID;
+
+            // Get employee ID
+            for (i = 0; i < employees.length; i++) {
+              if (answer.employee === employees[i].Employee) {
+                employeeID = employees[i].id;
+              }
+            }
+
+            // Delete employee
+            connection.query(
+              `DELETE FROM employee WHERE id = ${employeeID}`,
+              (err, res) => {
+                if (err) throw err;
+                console.log(
+                  `\n ${answer.employee} was sucessfully deleted!.....\n`
+                );
+                mainMenu();
+              }
+            );
+          } else if (answer.yesNo === "No") {
+            mainMenu();
+          }
+        });
+    }
+  );
+}
+
+// Function to delete a role
+function deleteRole() {
+  // Create global array for role
+  let roleArray = [];
+
+  // Query to get all roles
+  connection.query("SELECT * FROM roles", (err, roles) => {
+    // Place roles into array
+    for (i = 0; i < roles.length; i++) {
+      roleArray.push(roles[i].title);
+    }
+
+    // Prompt user to select role
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          name: "role",
+          message: "Which role would you like to delete?",
+          choices: roleArray,
+        },
+        {
+          type: "list",
+          name: "yesNo",
+          message: "Are you sure you want to delete this role?",
+          choices: ["Yes", "No"],
+        },
+      ])
+      .then((answer) => {
+        if (answer.yesNo === "Yes") {
+          let roleID;
+
+          // Get role ID
+          for (i = 0; i < roles.length; i++) {
+            if (answer.role === roles[i].title) {
+              roleID = roles[i].id;
+            }
+          }
+
+          // Delete role
+          connection.query(
+            `DELETE FROM roles WHERE id = ${roleID}`,
+            (err, res) => {
+              if (err) throw err;
+              console.log(`\n ${answer.role} was sucessfully deleted!.....\n`);
+              mainMenu();
+            }
+          );
+        } else if (answer.yesNo === "No") {
+          mainMenu();
+        }
+      });
+  });
+}
+
 // Function to delete a department
 function deleteDepartment() {
   // Create global array for department
   let departmentArray = [];
 
   // Query to get all departments
-  connection.query("SELECT * FROM department", (err, departments) => {
+  connection.query("SELECT * FROM departments", (err, departments) => {
     // Place departments into array
     for (i = 0; i < departments.length; i++) {
       departmentArray.push(departments[i].name);
@@ -400,26 +531,38 @@ function deleteDepartment() {
           message: "Which department would you like to delete?",
           choices: departmentArray,
         },
+        {
+          type: "list",
+          name: "yesNo",
+          message: "Are you sure you want to delete this department?",
+          choices: ["Yes", "No"],
+        },
       ])
       .then((answer) => {
-        let departmentID;
+        if (answer.yesNo === "Yes") {
+          let departmentID;
 
-        // Get department ID
-        for (i = 0; i < departments.length; i++) {
-          if (answer.department === departments[i].name) {
-            departmentID = departments[i].id;
+          // Get department ID
+          for (i = 0; i < departments.length; i++) {
+            if (answer.department === departments[i].name) {
+              departmentID = departments[i].id;
+            }
           }
+
+          // Delete department
+          connection.query(
+            `DELETE FROM departments WHERE id = ${departmentID}`,
+            (err, res) => {
+              if (err) throw err;
+              console.log(
+                `\n ${answer.department} was sucessfully deleted!.....\n`
+              );
+              mainMenu();
+            }
+          );
+        } else if (answer.yesNo === "No") {
+          mainMenu();
         }
-
-        // Delete department
-        connection.query(
-          `DELETE FROM department WHERE id = ${departmentID}`,
-          (err, res) => {
-            if (err) throw err;
-            console.log(`\n ${answer.department} was deleted!.....\n`);
-            mainMenu();
-          }
-        );
       });
   });
 }
