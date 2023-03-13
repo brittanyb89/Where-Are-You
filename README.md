@@ -9,12 +9,14 @@ This project allows the user to create a team of employees through the command l
 GitHub Repository: https://github.com/brittanyb89/Where-Are-You
 Watch demo here: https://watch.screencastify.com/v/b1yYOZb0pXzAUsksWm7j
 
+```
 # User Story
 
 AS A business owner
 I WANT to be able to view and manage the departments, roles, and employees in my company
 SO THAT I can organize and plan my business
-
+```
+```
 # Acceptance Criteria
 
 GIVEN a command-line application that accepts user input
@@ -34,7 +36,7 @@ WHEN I choose to add an employee
 THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 WHEN I choose to update an employee role
 THEN I am prompted to select an employee to update and their new role and this information is updated in the database
-
+```
 ## Installation/Usage
 
 To install, run the following command:
